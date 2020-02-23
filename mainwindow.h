@@ -24,9 +24,9 @@ private slots:
 
     void on_pushButton_clicked();
 
-    void on_lineEdit_textChanged(const QString &arg1);
+    void on_lineEdit_textChanged();
 
-    void on_lineEdit_2_textChanged(const QString &arg1);
+    void on_lineEdit_2_textChanged();
 
 private:
     Ui::MainWindow *ui;

@@ -6,12 +6,12 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>454</width>
-    <height>229</height>
+    <width>547</width>
+    <height>328</height>
    </rect>
   </property>
   <property name="windowTitle">
-   <string>MainWindow</string>
+   <string>Перемножение матриц</string>
   </property>
   <widget class="QWidget" name="centralwidget">
    <layout class="QVBoxLayout" name="verticalLayout">
@@ -28,6 +28,9 @@
        <widget class="QLineEdit" name="lineEdit">
         <property name="enabled">
          <bool>false</bool>
+        </property>
+        <property name="text">
+         <string/>
         </property>
        </widget>
       </item>
@@ -54,6 +57,9 @@
         <property name="enabled">
          <bool>false</bool>
         </property>
+        <property name="text">
+         <string/>
+        </property>
        </widget>
       </item>
       <item>
@@ -70,6 +76,12 @@
       <property name="enabled">
        <bool>false</bool>
       </property>
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
       <property name="text">
        <string>Расчитать</string>
       </property>
@@ -82,7 +94,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>454</width>
+     <width>547</width>
      <height>20</height>
     </rect>
    </property>
