@@ -102,8 +102,8 @@ vector<vector<int>> parse(QString const& path) {
 
 void multiplication(const MatrixMultiplication& task)
 {
-    for (uint i = 0; i < task.NTo; i++) {
-        for (uint j = 0; j < task.MTo; j++) {
+    for (uint i = task.NFrom; i < task.NTo; i++) {
+        for (uint j = task.MFrom; j < task.MTo; j++) {
             for (uint k = 0; k < task.MN; k++) {
                 (*task.res)[i][j] += task.matrix1[i][k] * task.matrix2[k][j];
             }
@@ -153,12 +153,6 @@ void MainWindow::on_pushButton_clicked()
         QFuture< void > future = QtConcurrent::map( tasks, multiplication );
         multiplication( MatrixMultiplication{ matrix1, matrix2, 0, M2, N, N1, M1, &res } );
         future.waitForFinished();
-
-
-        //QFuture<vector<vector<int>>> multi = QtConcurrent::run(multiplication, N1, M1, M2, matrix1, matrix2);
-        //QFuture<void> write = QtConcurrent::run(write_file, N1, M2, multi);
-        //multi.waitForFinished();
-        //write.waitForFinished();
 
         auto end = chrono::high_resolution_clock::now();
         write_file(N1, M2, res);
