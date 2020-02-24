@@ -7,8 +7,6 @@
 #include <QFuture>
 
 #include <iostream>
-#include <vector>
-using std::vector;
 #include <fstream>
 using std::ifstream;
 #include <string>
@@ -23,14 +21,14 @@ using namespace std;
 static const int THREAD_COUNT = QThread::idealThreadCount();
 
 struct MatrixMultiplication {
-    vector<vector<int>> matrix1;
-    vector<vector<int>> matrix2;
+    QVector<QVector<int>> matrix1;
+    QVector<QVector<int>> matrix2;
     uint MFrom;
     uint MTo;
     uint NFrom;
     uint NTo;
     uint MN;
-    vector<vector<int>>* res;
+    QVector<QVector<int>>* res;
 };
 
 MainWindow::MainWindow(QWidget *parent)
@@ -67,17 +65,17 @@ void MainWindow::on_toolButton_2_clicked()
     ui->lineEdit_2->setText(fileName);
 }
 
-vector<vector<int>> parse(QString const& path) {
-    vector<vector<int>> res;
+QVector<QVector<int>> parse(QString const& path) {
+    QVector<QVector<int>> res;
     auto input = ifstream(path.toLatin1().constData());
     string row;
 
     while (getline(input, row, '\n')) {
-        vector<int> vrow;
+        QVector<int> vrow;
         auto rowstream = istringstream(row);
         string temp;
         while (getline(rowstream, temp, ','))
-            vrow.emplace_back(stoi(temp));
+            vrow.push_back(stoi(temp));
         res.push_back(vrow);
     }
 
@@ -85,9 +83,9 @@ vector<vector<int>> parse(QString const& path) {
     return res;
 }
 
-/*vector<vector<int>> multiplication(uint N1, uint M1, uint M2, vector<vector<int>> const&matrix1, vector<vector<int>> const&matrix2)
+/*QVector<QVector<int>> multiplication(uint N1, uint M1, uint M2, QVector<QVector<int>> const&matrix1, QVector<QVector<int>> const&matrix2)
 {
-    vector<vector<int>> res(N1, vector<int>(M2, 0));
+    QVector<QVector<int>> res(N1, QVector<int>(M2, 0));
 
     for (uint i = 0; i < N1; i++) {
         for (uint j = 0; j < M2; j++) {
@@ -111,7 +109,7 @@ void multiplication(const MatrixMultiplication& task)
     }
 }
 
-void write_file(uint N, uint M, vector<vector<int>> const&res)
+void write_file(uint N, uint M, QVector<QVector<int>> const&res)
 {
     ofstream fout;
     fout.open("result.csv");
@@ -140,10 +138,10 @@ void MainWindow::on_pushButton_clicked()
     } else {
         auto start = chrono::high_resolution_clock::now();
 
-        //vector<vector<int>> res = multiplication(N1, M1, M2, matrix1, matrix2);
+        //QVector<QVector<int>> res = multiplication(N1, M1, M2, matrix1, matrix2);
         //write_file(N1, M2, multi);
 
-        vector<vector<int>> res(N1, vector<int>(M2, 0));
+        QVector<QVector<int>> res(N1, QVector<int>(M2, 0));
         QVector<MatrixMultiplication> tasks;
         uint repeats = N1 / THREAD_COUNT;
         uint N = 0;
