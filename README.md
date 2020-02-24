@@ -1,2 +1,2 @@
 # MMatrix
-Matrix multiplication program for practiсe
+Matrix multiplication program using QtConcurrent for practiсe
