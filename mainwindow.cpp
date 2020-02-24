@@ -54,7 +54,7 @@ void MainWindow::onTextChanged()
 void MainWindow::on_toolButton_clicked()
 {
     QString fileName = QFileDialog::getOpenFileName(this, tr("Открыть файл"),
-                                                    "D:/Agrail/GitHub/MMatrix/",
+                                                    "/home/",
                                                     tr("CSV Files (*.csv)"));
     ui->lineEdit->setText(fileName);
 }
@@ -62,7 +62,7 @@ void MainWindow::on_toolButton_clicked()
 void MainWindow::on_toolButton_2_clicked()
 {
     QString fileName = QFileDialog::getOpenFileName(this, tr("Открыть файл"),
-                                                    "D:/Agrail/GitHub/MMatrix/",
+                                                    "/home/",
                                                     tr("CSV Files (*.csv)"));
     ui->lineEdit_2->setText(fileName);
 }
