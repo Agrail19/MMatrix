@@ -2,6 +2,9 @@
 #include "ui_mainwindow.h"
 #include <QFileDialog>
 #include <QMessageBox>
+#include <QDebug>
+#include <QtConcurrent>
+#include <QFuture>
 
 #include <iostream>
 #include <vector>
@@ -13,7 +16,22 @@ using std::string;
 #include <sstream>
 using std::istringstream;
 
+#include <chrono>
+
 using namespace std;
+
+static const int THREAD_COUNT = QThread::idealThreadCount();
+
+struct MatrixMultiplication {
+    vector<vector<int>> matrix1;
+    vector<vector<int>> matrix2;
+    uint MFrom;
+    uint MTo;
+    uint NFrom;
+    uint NTo;
+    uint MN;
+    vector<vector<int>>* res;
+};
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -31,6 +49,22 @@ void MainWindow::onTextChanged()
 {
     if(ui->lineEdit->text().isEmpty() || ui->lineEdit_2->text().isEmpty()) ui->pushButton->setEnabled(false);
         else ui->pushButton->setEnabled(true);
+}
+
+void MainWindow::on_toolButton_clicked()
+{
+    QString fileName = QFileDialog::getOpenFileName(this, tr("Открыть файл"),
+                                                    "D:/Agrail/GitHub/MMatrix/",
+                                                    tr("CSV Files (*.csv)"));
+    ui->lineEdit->setText(fileName);
+}
+
+void MainWindow::on_toolButton_2_clicked()
+{
+    QString fileName = QFileDialog::getOpenFileName(this, tr("Открыть файл"),
+                                                    "D:/Agrail/GitHub/MMatrix/",
+                                                    tr("CSV Files (*.csv)"));
+    ui->lineEdit_2->setText(fileName);
 }
 
 vector<vector<int>> parse(QString const& path) {
@@ -51,23 +85,7 @@ vector<vector<int>> parse(QString const& path) {
     return res;
 }
 
-void MainWindow::on_toolButton_clicked()
-{
-    QString fileName = QFileDialog::getOpenFileName(this, tr("Open File"),
-                                                    "D:/Agrail/GitHub/MMatrix/",
-                                                    tr("CSV Files (*.csv)"));
-    ui->lineEdit->setText(fileName);
-}
-
-void MainWindow::on_toolButton_2_clicked()
-{
-    QString fileName = QFileDialog::getOpenFileName(this, tr("Open File"),
-                                                    "D:/Agrail/GitHub/MMatrix/",
-                                                    tr("CSV Files (*.csv)"));
-    ui->lineEdit_2->setText(fileName);
-}
-
-vector<vector<int>> multiplication(uint N1, uint M1, uint M2, vector<vector<int>> const&matrix1, vector<vector<int>> const&matrix2)
+/*vector<vector<int>> multiplication(uint N1, uint M1, uint M2, vector<vector<int>> const&matrix1, vector<vector<int>> const&matrix2)
 {
     vector<vector<int>> res(N1, vector<int>(M2, 0));
 
@@ -80,6 +98,17 @@ vector<vector<int>> multiplication(uint N1, uint M1, uint M2, vector<vector<int>
     }
 
     return res;
+}*/
+
+void multiplication(const MatrixMultiplication& task)
+{
+    for (uint i = 0; i < task.NTo; i++) {
+        for (uint j = 0; j < task.MTo; j++) {
+            for (uint k = 0; k < task.MN; k++) {
+                (*task.res)[i][j] += task.matrix1[i][k] * task.matrix2[k][j];
+            }
+        }
+    }
 }
 
 void write_file(uint N, uint M, vector<vector<int>> const&res)
@@ -109,9 +138,33 @@ void MainWindow::on_pushButton_clicked()
     if (M1 != N2) {
         QMessageBox::critical(this, "Ошибка!", "Проверьте матрицы! Количество столбцов первой матрицы должно совпадать с количеством строк второй матрицы!");
     } else {
-        vector<vector<int>> res = multiplication(N1, M1, M2, matrix1, matrix2);
+        auto start = chrono::high_resolution_clock::now();
+
+        //vector<vector<int>> res = multiplication(N1, M1, M2, matrix1, matrix2);
+        //write_file(N1, M2, multi);
+
+        vector<vector<int>> res(N1, vector<int>(M2, 0));
+        QVector<MatrixMultiplication> tasks;
+        uint repeats = N1 / THREAD_COUNT;
+        uint N = 0;
+        for(; N < N1 - repeats; N += repeats ) {
+                tasks << MatrixMultiplication { matrix1, matrix2, 0, M2, N, N + repeats, M1, &res };
+        }
+        QFuture< void > future = QtConcurrent::map( tasks, multiplication );
+        multiplication( MatrixMultiplication{ matrix1, matrix2, 0, M2, N, N1, M1, &res } );
+        future.waitForFinished();
+
+
+        //QFuture<vector<vector<int>>> multi = QtConcurrent::run(multiplication, N1, M1, M2, matrix1, matrix2);
+        //QFuture<void> write = QtConcurrent::run(write_file, N1, M2, multi);
+        //multi.waitForFinished();
+        //write.waitForFinished();
+
+        auto end = chrono::high_resolution_clock::now();
         write_file(N1, M2, res);
         QMessageBox::information(this, "Выполнено", "Результат записан в файл result.csv");
+        auto time = chrono::duration_cast<chrono::microseconds>(end - start).count();
+        qDebug() << time << "msc.";
     }
 }
 
