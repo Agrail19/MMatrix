@@ -65,22 +65,28 @@ void MainWindow::on_toolButton_2_clicked()
     ui->lineEdit_2->setText(fileName);
 }
 
-QVector<QVector<int>> parse(QString const& path) {
+QVector<QVector<int>> parse(QString const& path, QString k) {
     QVector<QVector<int>> res;
-    auto input = ifstream(path.toLatin1().constData());
-    string row;
+    try {
+        auto input = ifstream(path.toLatin1().constData());
+        string row;
 
-    while (getline(input, row, '\n')) {
-        QVector<int> vrow;
-        auto rowstream = istringstream(row);
-        string temp;
-        while (getline(rowstream, temp, ','))
-            vrow.push_back(stoi(temp));
-        res.push_back(vrow);
+        while (getline(input, row, '\n')) {
+            QVector<int> vrow;
+            auto rowstream = istringstream(row);
+            string temp;
+            while (getline(rowstream, temp, ','))
+                vrow.push_back(stoi(temp));
+            res.push_back(vrow);
+        }
+
+        input.close();
+        return res;
+    } catch (...) {
+        QMessageBox::critical(nullptr, "Ошибка!", "Проверьте матрицу " + k + "!");
+        QVector<QVector<int>> neres;
+        return neres;
     }
-
-    input.close();
-    return res;
 }
 
 /*QVector<QVector<int>> multiplication(uint N1, uint M1, uint M2, QVector<QVector<int>> const&matrix1, QVector<QVector<int>> const&matrix2)
@@ -125,8 +131,10 @@ void write_file(uint N, uint M, QVector<QVector<int>> const&res)
 
 void MainWindow::on_pushButton_clicked()
 {
-    auto matrix1 = parse(ui->lineEdit->text());
-    auto matrix2 = parse(ui->lineEdit_2->text());
+    auto matrix1 = parse(ui->lineEdit->text(), "1");
+    if (matrix1.size() == 0) return void();
+    auto matrix2 = parse(ui->lineEdit_2->text(), "2");
+    if (matrix2.size() == 0) return void();
 
     uint N1 = matrix1.size();
     uint M1 = matrix1[0].size();
@@ -139,11 +147,16 @@ void MainWindow::on_pushButton_clicked()
         auto start = chrono::high_resolution_clock::now();
 
         //QVector<QVector<int>> res = multiplication(N1, M1, M2, matrix1, matrix2);
-        //write_file(N1, M2, multi);
 
         QVector<QVector<int>> res(N1, QVector<int>(M2, 0));
         QVector<MatrixMultiplication> tasks;
-        uint repeats = N1 / THREAD_COUNT;
+
+        uint tcount = THREAD_COUNT;
+        if (N1 < tcount) {
+            tcount = N1;
+        }
+
+        uint repeats = N1 / tcount;
         uint N = 0;
         for(; N < N1 - repeats; N += repeats ) {
                 tasks << MatrixMultiplication { matrix1, matrix2, 0, M2, N, N + repeats, M1, &res };
