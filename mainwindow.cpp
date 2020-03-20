@@ -21,8 +21,8 @@ using namespace std;
 static const int THREAD_COUNT = QThread::idealThreadCount();
 
 struct MatrixMultiplication {
-    QVector<QVector<int>> matrix1;
-    QVector<QVector<int>> matrix2;
+    QVector<QVector<int>>* matrix1;
+    QVector<QVector<int>>* matrix2;
     uint MFrom;
     uint MTo;
     uint NFrom;
@@ -89,27 +89,12 @@ QVector<QVector<int>> parse(QString const& path, QString k) {
     }
 }
 
-/*QVector<QVector<int>> multiplication(uint N1, uint M1, uint M2, QVector<QVector<int>> const&matrix1, QVector<QVector<int>> const&matrix2)
-{
-    QVector<QVector<int>> res(N1, QVector<int>(M2, 0));
-
-    for (uint i = 0; i < N1; i++) {
-        for (uint j = 0; j < M2; j++) {
-            for (uint k = 0; k < M1; k++) {
-                res[i][j] += matrix1[i][k] * matrix2[k][j];
-            }
-        }
-    }
-
-    return res;
-}*/
-
 void multiplication(const MatrixMultiplication& task)
 {
     for (uint i = task.NFrom; i < task.NTo; i++) {
         for (uint j = task.MFrom; j < task.MTo; j++) {
             for (uint k = 0; k < task.MN; k++) {
-                (*task.res)[i][j] += task.matrix1[i][k] * task.matrix2[k][j];
+                (*task.res)[i][j] += (*task.matrix1)[i][k] * (*task.matrix2)[k][j];
             }
         }
     }
@@ -146,8 +131,6 @@ void MainWindow::on_pushButton_clicked()
     } else {
         auto start = chrono::high_resolution_clock::now();
 
-        //QVector<QVector<int>> res = multiplication(N1, M1, M2, matrix1, matrix2);
-
         QVector<QVector<int>> res(N1, QVector<int>(M2, 0));
         QVector<MatrixMultiplication> tasks;
 
@@ -159,10 +142,10 @@ void MainWindow::on_pushButton_clicked()
         uint repeats = N1 / tcount;
         uint N = 0;
         for(; N < N1 - repeats; N += repeats ) {
-                tasks << MatrixMultiplication { matrix1, matrix2, 0, M2, N, N + repeats, M1, &res };
+                tasks << MatrixMultiplication { &matrix1, &matrix2, 0, M2, N, N + repeats, M1, &res };
         }
         QFuture< void > future = QtConcurrent::map( tasks, multiplication );
-        multiplication( MatrixMultiplication{ matrix1, matrix2, 0, M2, N, N1, M1, &res } );
+        multiplication( MatrixMultiplication{ &matrix1, &matrix2, 0, M2, N, N1, M1, &res } );
         future.waitForFinished();
 
         auto end = chrono::high_resolution_clock::now();
