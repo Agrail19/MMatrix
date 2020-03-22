@@ -150,7 +150,7 @@ void MainWindow::on_pushButton_clicked()
 
         auto end = chrono::high_resolution_clock::now();
         write_file(N1, M2, res);
-        QMessageBox::information(this, "Выполнено", "Результат записан в файл result.csv");
+        QMessageBox::information(this, "Выполнено.", "Результат записан в файл result.csv");
         auto time = chrono::duration_cast<chrono::microseconds>(end - start).count();
         qDebug() << time << "msc.";
     }
