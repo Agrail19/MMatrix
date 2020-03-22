@@ -39,5 +39,7 @@ Matrix multiplication program using QtConcurrent for practiсe
 
 ### Result
 Edges of spanning tree:
+
 1 --- 2
+
 1 --- 3
