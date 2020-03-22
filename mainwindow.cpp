@@ -15,6 +15,7 @@ using std::string;
 using std::istringstream;
 
 #include <chrono>
+#include "alg.h"
 
 using namespace std;
 
@@ -150,14 +151,44 @@ void MainWindow::on_pushButton_clicked()
 
         auto end = chrono::high_resolution_clock::now();
         write_file(N1, M2, res);
-        QMessageBox::information(this, "Выполнено.", "Результат записан в файл result.csv");
+        QMessageBox::information(this, "Выполнено", "Результат записан в файл result.csv");
         auto time = chrono::duration_cast<chrono::microseconds>(end - start).count();
         qDebug() << time << "msc.";
     }
 }
 
+void MainWindow::on_pushButton_2_clicked()
+{
+    auto matrix = parse(ui->lineEdit->text(), "1");
+    if (matrix.size() == 0) return void();
+
+    uint N = matrix.size();
+    uint M = matrix[0].size();
+
+    if (N != M) {
+        QMessageBox::critical(this, "Ошибка!", "Проверьте матрицу 1! Количество столбцов матрицы должно совпадать с количеством строк!");
+    } else {
+        matrix = KRS::kruskal(N, matrix);
+        if (matrix.size() == 0) {
+            QMessageBox::critical(this, "Ошибка!", "Неправильно задана матрица 1!");
+            return void();
+        }
+
+        QString edges = "Рёбра остовного дерева: \n";
+
+        for (int i = 0; i < matrix.size() - 1; i++) {
+            for (int j = i + 1; j < matrix.size(); j++) {
+                if (matrix[i][j] == 1) edges += QString::number(i + 1) + " --- " + QString::number(j + 1) + "\n";
+            }
+        }
+        QMessageBox::information(this,"Остовное дерево",edges);
+
+    }
+}
+
 void MainWindow::on_lineEdit_textChanged()
 {
+    ui->pushButton_2->setEnabled(true);
     MainWindow::onTextChanged();
 }
 

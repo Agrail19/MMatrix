@@ -28,6 +28,8 @@ private slots:
 
     void on_lineEdit_2_textChanged();
 
+    void on_pushButton_2_clicked();
+
 private:
     Ui::MainWindow *ui;
 };
