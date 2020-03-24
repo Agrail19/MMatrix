@@ -13,13 +13,12 @@ namespace KRS {
         int M = 0;
         QVector<QVector<int>> res(N, QVector<int>(N, 0));
         QVector<pair<int, pair<int, int>>> g;
-        bool check = false;
+
         for (int i = 0; i < N; i++) {
             for (int j = 0; j <= i; j++)
             {
                 if (i == j) {
                     if (matrix[i][j] != 0) {
-                        check = true;
                         qDebug() << "Error 1!";
                         QVector<QVector<int>> neres;
                         return neres;
@@ -28,7 +27,6 @@ namespace KRS {
                 else
                 {
                     if ((matrix[i][j] != 1 && matrix[j][i] != 1) && (matrix[i][j] != 0 && matrix[j][i] != 0)) {
-                        check = true;
                         qDebug() << "Error 2!";
                         QVector<QVector<int>> neres;
                         return neres;
@@ -44,29 +42,27 @@ namespace KRS {
                 }
             }
         }
-        if (!check)
-        {
-            //sort(g.begin(), g.end());
-            QVector<int> colors(N);
-            for (int i = 0; i < N; i++)
-                colors[i] = i;
-            for (int i = 0; i < M; i++)
-            {
-                int a = g[i].second.first, b = g[i].second.second, l = g[i].first;
-                if (colors[a] != colors[b])
-                {
-                    res[a][b] = l;
-                    res[b][a] = l;
-                    int old_c = colors[b], new_c = colors[a];
-                    for (int j = 0; j < N; j++)
-                    {
-                        if (colors[j] == old_c)
-                            colors[j] = new_c;
-                    }
-                }
 
+        QVector<int> colors(N);
+        for (int i = 0; i < N; i++)
+            colors[i] = i;
+        for (int i = 0; i < M; i++)
+        {
+            int a = g[i].second.first, b = g[i].second.second, l = g[i].first;
+            if (colors[a] != colors[b])
+            {
+                res[a][b] = l;
+                res[b][a] = l;
+                int old_c = colors[b], new_c = colors[a];
+                for (int j = 0; j < N; j++)
+                {
+                    if (colors[j] == old_c)
+                        colors[j] = new_c;
+                }
             }
+
         }
+
         return res;
     }
 }
