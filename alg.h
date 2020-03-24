@@ -63,6 +63,17 @@ namespace KRS {
 
         }
 
+        bool check = false;
+        for (int i = 0; i < N - 1; i++) {
+            if (colors[i] != colors[i + 1])
+                check = true;
+        }
+        if (check) {
+            qDebug() << "Error 3!";
+            QVector<QVector<int>> neres;
+            return neres;
+        }
+
         return res;
     }
 }
